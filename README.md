@@ -7,14 +7,14 @@ A simple Python scraper to fetch daily Spotify charts for any country from [kwor
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/yourusername/spotify-charts-scraper.git
+   git clone https://github.com/alexakka/spotify-charts-scraper.git
    cd spotify-charts-scraper
    ```
 2. Create and activate a virtual environment (optional but recommended):
 
    ```bash
-   python -m venv venv
-   source venv/bin/activate   # On Windows: venv\Scripts\activate
+   python -m venv spotify-scraper
+   spotify-scraper\Scripts\activate
    ```
 3. Install required packages:
 
