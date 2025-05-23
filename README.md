@@ -22,36 +22,6 @@ A simple Python scraper to fetch daily Spotify charts for any country from [kwor
    pip install -r requirements.txt
    ```
 
-## Usage
-
-```python
-from spotify_charts_scraper import SpotifyChartsScrapper
-
-# Initialize scraper
-scraper = SpotifyChartsScrapper()
-
-# Fetch and parse daily chart for Ukraine
-chart_page = scraper.get_daily_chart("Ukraine")
-df = scraper.parse_daily_chart(chart_page)
-
-# Display top 5 tracks
-print(df.head())
-```
-
-## Classes
-
-### `CountryCodes`
-
-* Maintains a mapping of country names to Spotify chart codes (e.g., "United States" → `us`).
-* Method: `get_country_code(country: str) -> str` (case-insensitive lookup).
-
-### `SpotifyChartsScrapper`
-
-* Methods:
-
-  * `get_daily_chart(country: str) -> (country_name, html_bytes)`
-  * `parse_daily_chart(chart_page) -> pandas.DataFrame`
-
 ## Extending
 
 * Add or update country codes in `CountryCodes.country_codes`.

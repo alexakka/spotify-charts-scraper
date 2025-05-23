@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 
 class CountryCodes:
     country_codes = {
-        "Andorra": "ad",
         "Argentina": "ar",
         "Australia": "au",
         "Austria": "at",
@@ -84,26 +83,31 @@ class CountryCodes:
         "Vietnam": "vn",
     }
 
-    def get_country_code(self, country="Global") -> str:
+    def get_country_code(self, country: str="Global") -> str:
         return self.country_codes.get(country.title())
+
+    def get_countries_list(self):
+        return list(self.country_codes.keys())
 
 
 class SpotifyChartsScrapper:
     def __init__(self):
         self.country_codes = CountryCodes()
 
-    def get_daily_chart(self, country: str) -> Dict[str, str]:
+    def __get_daily_chart(self, country: str="Global") -> Dict[str, str]:
         code = self.country_codes.get_country_code(country)
 
         if not code:
             raise ValueError(f"No country code found for '{country}'")
 
         url = f"https://kworb.net/spotify/country/{code}_daily.html"
-        resp = requests.get(url)
-        resp.raise_for_status()
-        return country, resp.content
 
-    def parse_daily_chart(self, chart_page) -> pd.DataFrame:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        return country, response.content
+
+    def __parse_daily_chart(self, chart_page) -> pd.DataFrame:
         country, html = chart_page
         soup = BeautifulSoup(html, "html.parser")
         rows = soup.select("table.sortable tbody tr")
@@ -122,7 +126,12 @@ class SpotifyChartsScrapper:
             position = pos_td.get_text(strip=True)
             artist = art_a.get_text(strip=True)
             song = song_a.get_text(strip=True)
-            streams = int(streams_td.get_text(strip=True).replace(",", ""))
+
+            streams_raw = streams_td.get_text(strip=True).replace(",", "")
+            streams = None
+
+            if streams_raw:
+                streams = streams_raw
 
             records.append({
                 "position": position,
@@ -134,10 +143,16 @@ class SpotifyChartsScrapper:
 
         return pd.DataFrame(records)
 
+    def get_daily_charts(self, countries=["Global"]):
+        charts = []
 
-if __name__ == "__main__":
-    scrapper = SpotifyChartsScrapper()
-    chart_page = scrapper.get_daily_chart("Ukraine")
-    df = scrapper.parse_daily_chart(chart_page)
-    print(df.head())
+        if len(countries) == 0:
+            countries = self.country_codes.get_countries_list()
 
+        for country in countries:
+            country_chart = self.__get_daily_chart(country)
+            chart = self.__parse_daily_chart(country_chart)
+
+            charts.append(chart)
+
+        return pd.concat(charts, ignore_index=True)
