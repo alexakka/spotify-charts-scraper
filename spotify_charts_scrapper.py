@@ -1,3 +1,5 @@
+import datetime
+import re
 from typing import Dict
 
 import pandas as pd
@@ -112,6 +114,9 @@ class SpotifyChartsScrapper:
         soup = BeautifulSoup(html, "html.parser")
         rows = soup.select("table.sortable tbody tr")
 
+        title_text = soup.select_one("span.pagetitle").get_text(strip=True)
+        date = re.findall(r"\d{4}/\d{2}/\d{2}", title_text)
+
         records = []
         for row in rows:
             pos_td = row.select_one("td:nth-of-type(1)")
@@ -134,11 +139,12 @@ class SpotifyChartsScrapper:
                 streams = streams_raw
 
             records.append({
+                "date": date[0],
                 "position": position,
-                "artist":   artist,
-                "song":     song,
-                "streams":  streams,
-                "country":  country
+                "artist": artist,
+                "song": song,
+                "streams": streams,
+                "country": country
             })
 
         return pd.DataFrame(records)
